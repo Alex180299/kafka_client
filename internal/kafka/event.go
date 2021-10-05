@@ -5,27 +5,27 @@ import (
 	"kafka_client/internal"
 )
 
-type Kafka struct {
+type EventKafka struct {
 
 }
 
-func (k Kafka) Publish(ctx context.Context, message internal.Message) error {
+func (k EventKafka) Publish(ctx context.Context, message internal.Message) error {
 	return nil
 }
 
-func (k Kafka) Listen(ctx context.Context, topic string) error {
+func (k EventKafka) Listen(ctx context.Context, topic string) error {
 	return nil
 }
 
 /*
-func NewKafka(newEvent *external_events.NewEvent, address string) Kafka {
-	return Kafka{
+func NewKafka(newEvent *external_events.NewEvent, address string) KafkaEvent {
+	return KafkaEvent{
 		newEvent: newEvent,
 		address:  address,
 	}
 }
 
-func (i *Kafka) Produce(event application.Event) error {
+func (i *KafkaEvent) Produce(event application.EventKafka) error {
 	log.Println(fmt.Sprintf("producing new event %+v", event))
 	partition := 0
 
@@ -56,7 +56,7 @@ func (i *Kafka) Produce(event application.Event) error {
 	return nil
 }
 
-func (i *Kafka) Listen(address string, topic application.Topic) error {
+func (i *KafkaEvent) Listen(address string, topic application.Topic) error {
 	reader := getKafkaReader(address, string(topic))
 	err := reader.SetOffset(1)
 	if err != nil {
@@ -71,7 +71,7 @@ func (i *Kafka) Listen(address string, topic application.Topic) error {
 		}
 
 		fmt.Printf("message at topic:%v partition:%v offset:%v	%s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
-		err = i.newEvent.Consume(application.Event{
+		err = i.newEvent.Consume(application.EventKafka{
 			Key:   string(m.Key),
 			Value: string(m.Value),
 			Topic: application.Topic(m.Topic),

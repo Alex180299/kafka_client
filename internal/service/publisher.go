@@ -7,7 +7,7 @@ import (
 
 type MessageBroker interface {
 	Publish(ctx context.Context, message internal.Message) error
-	Listen(ctx context.Context, topic string) error
+	Listen(ctx context.Context, topic string, address string) error
 }
 
 type Publisher struct {
@@ -27,12 +27,12 @@ func (p *Publisher) Publish(ctx context.Context, message internal.Message) (inte
 	return message, nil
 }
 
-func (p *Publisher) Listen(ctx context.Context, topic internal.Topic) error {
+func (p *Publisher) Listen(ctx context.Context, topic internal.Topic, address string) error {
 	if err := topic.Validate(); err != nil {
 		return err
 	}
 
-	err := p.broker.Listen(ctx, string(topic))
+	err := p.broker.Listen(ctx, string(topic), address)
 	if err != nil {
 		return err
 	}

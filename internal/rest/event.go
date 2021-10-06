@@ -9,7 +9,7 @@ import (
 
 type PublisherService interface {
 	Publish(ctx context.Context, message internal.Message) (internal.Message, error)
-	Listen(ctx context.Context, topic internal.Topic) error
+	Listen(ctx context.Context, topic internal.Topic, address string) error
 }
 
 type EventHandler struct {
@@ -22,7 +22,8 @@ func (e EventHandler) Register(echoServer *echo.Echo) {
 }
 
 type listenRequest struct {
-	Topic string `json:"topic"`
+	Topic   string `json:"topic"`
+	Address string `json:"address"`
 }
 
 func (e *EventHandler) listen(c echo.Context) error {
@@ -32,7 +33,7 @@ func (e *EventHandler) listen(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	err = e.svc.Listen(c.Request().Context(), internal.Topic(req.Topic))
+	err = e.svc.Listen(c.Request().Context(), internal.Topic(req.Topic), req.Address)
 	if err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}

@@ -2,34 +2,27 @@ package kafka
 
 import (
 	"context"
+	"fmt"
+	"github.com/segmentio/kafka-go"
 	"kafka_client/internal"
+	"log"
+	"strings"
+	"time"
 )
 
-type EventKafka struct {
+type ConsumerService interface {
+	Consume(ctx context.Context, message internal.Message) error
+}
 
+type EventKafka struct {
+	svc ConsumerService
 }
 
 func (k EventKafka) Publish(ctx context.Context, message internal.Message) error {
-	return nil
-}
-
-func (k EventKafka) Listen(ctx context.Context, topic string) error {
-	return nil
-}
-
-/*
-func NewKafka(newEvent *external_events.NewEvent, address string) KafkaEvent {
-	return KafkaEvent{
-		newEvent: newEvent,
-		address:  address,
-	}
-}
-
-func (i *KafkaEvent) Produce(event application.EventKafka) error {
-	log.Println(fmt.Sprintf("producing new event %+v", event))
+	log.Println(fmt.Sprintf("producing new event %+v", message))
 	partition := 0
 
-	conn, err := kafka.DialLeader(context.Background(), "tcp", i.address, string(event.Topic), partition)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", message.Address, string(message.Topic), partition)
 	if err != nil {
 		log.Fatal("failed to dial leader:", err)
 		return err
@@ -41,7 +34,7 @@ func (i *KafkaEvent) Produce(event application.EventKafka) error {
 		return err
 	}
 	_, err = conn.WriteMessages(
-		kafka.Message{Key: []byte(event.Key), Value: []byte(event.Value)},
+		kafka.Message{Key: []byte(message.Key), Value: []byte(message.Value)},
 	)
 	if err != nil {
 		log.Fatal("failed to write messages:", err)
@@ -56,28 +49,33 @@ func (i *KafkaEvent) Produce(event application.EventKafka) error {
 	return nil
 }
 
-func (i *KafkaEvent) Listen(address string, topic application.Topic) error {
-	reader := getKafkaReader(address, string(topic))
+func (k EventKafka) Listen(ctx context.Context, topic string, address string) error {
+	reader := getKafkaReader(address, topic)
+
 	err := reader.SetOffset(1)
 	if err != nil {
 		return err
 	}
-	defer reader.Close()
 
+	go k.listenInBackground(reader)
+
+	return nil
+}
+
+func (k EventKafka) listenInBackground(reader *kafka.Reader) {
 	for {
 		m, err := reader.ReadMessage(context.Background())
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		fmt.Printf("message at topic:%v partition:%v offset:%v	%s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
-		err = i.newEvent.Consume(application.EventKafka{
+		err = k.svc.Consume(context.Background(), internal.Message{
 			Key:   string(m.Key),
 			Value: string(m.Value),
-			Topic: application.Topic(m.Topic),
+			Topic: internal.Topic(m.Topic),
 		})
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Error to consume new event: (%+v), %s", m, err.Error()))
+			log.Fatalln(err)
 		}
 	}
 }
@@ -91,4 +89,3 @@ func getKafkaReader(address, topic string) *kafka.Reader {
 		MaxBytes: 100e6, // 10MB
 	})
 }
-*/

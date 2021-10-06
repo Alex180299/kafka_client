@@ -16,12 +16,13 @@ func (t Topic) Validate() error {
 }
 
 type Message struct {
-	Id     uint32
-	Key    string
-	Value  string
-	Topic  Topic
-	Sent   bool
-	SentAt time.Time
+	Sent    bool
+	Id      uint32
+	Key     string
+	Value   string
+	Address string
+	Topic   Topic
+	SentAt  time.Time
 }
 
 func (m *Message) Validate() error {
@@ -30,6 +31,9 @@ func (m *Message) Validate() error {
 	}
 	if m.Value == "" {
 		return errors.New("empty value")
+	}
+	if m.Address == "" {
+		return errors.New("empty address")
 	}
 	if err := m.Topic.Validate(); err != nil {
 		return err

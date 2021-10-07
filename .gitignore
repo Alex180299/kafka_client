@@ -1,0 +1,22 @@
+# React app
+# dependencies
+/ui/app/node_modules
+/ui/app/.pnp
+/ui/app.pnp.js
+
+# testing
+/ui/app/coverage
+
+# production
+/ui/app/build
+
+# misc
+/ui/app.DS_Store
+/ui/app.env.local
+/ui/app.env.development.local
+/ui/app.env.test.local
+/ui/app.env.production.local
+
+/ui/appnpm-debug.log*
+/ui/appyarn-debug.log*
+/ui/appyarn-error.log*

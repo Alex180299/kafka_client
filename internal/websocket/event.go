@@ -3,9 +3,12 @@ package websocket
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/labstack/echo/v4"
 	"kafka_client/internal"
+	"log"
+	"time"
 )
 
 type EventWebSocket struct {
@@ -23,6 +26,16 @@ func (w *EventWebSocket) Register(echoServer *echo.Echo) {
 
 	server.OnConnect("/", func(conn socketio.Conn) error {
 		w.connections = append(w.connections, &conn)
+		w.PublishConsumed(context.Background(), internal.Message{
+			Sent:    false,
+			Id:      0,
+			Key:     "",
+			Value:   "Este es un mensaje en el topico 1",
+			Address: "",
+			Topic:   "topico1",
+			SentAt:  time.Time{},
+		})
+
 		return nil
 	})
 	server.OnDisconnect("/", func(conn socketio.Conn, reason string) {
@@ -35,7 +48,12 @@ func (w *EventWebSocket) Register(echoServer *echo.Echo) {
 		}
 	})
 
-	go server.Serve()
+	go func() {
+		err := server.Serve()
+		if err != nil {
+			log.Fatal(fmt.Sprintf("error in websocket %s", err.Error()))
+		}
+	}()
 
 	echoServer.Any("/socket.io/", func(c echo.Context) error {
 		server.ServeHTTP(c.Response(), c.Request())
@@ -50,7 +68,7 @@ func (w *EventWebSocket) PublishConsumed(ctx context.Context, message internal.M
 	}
 
 	for _, c := range w.connections {
-		(*c).Emit("/", msg)
+		(*c).Emit("/", string(msg))
 	}
 
 	return nil

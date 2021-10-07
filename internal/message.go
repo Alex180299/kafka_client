@@ -16,13 +16,13 @@ func (t Topic) Validate() error {
 }
 
 type Message struct {
-	Sent    bool
-	Id      uint32
-	Key     string
-	Value   string
-	Address string
-	Topic   Topic
-	SentAt  time.Time
+	Sent    bool      `json:"sent"`
+	Id      uint32    `json:"id"`
+	Key     string    `json:"key"`
+	Value   string    `json:"value"`
+	Address string    `json:"address"`
+	Topic   Topic     `json:"topic"`
+	SentAt  time.Time `json:"sent_at"`
 }
 
 func (m *Message) Validate() error {

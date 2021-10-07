@@ -14,6 +14,12 @@ type Publisher struct {
 	broker MessageBroker
 }
 
+func NewPublisher(broker MessageBroker) Publisher {
+	return Publisher{
+		broker: broker,
+	}
+}
+
 func (p *Publisher) Publish(ctx context.Context, message internal.Message) (internal.Message, error) {
 	if err := message.Validate(); err != nil {
 		return internal.Message{}, err

@@ -13,6 +13,12 @@ type Consumer struct {
 	socket Socket
 }
 
+func NewConsumer(socket Socket) Consumer {
+	return Consumer{
+		socket: socket,
+	}
+}
+
 func (c *Consumer) Consume(ctx context.Context, message internal.Message) error {
 	if err := message.Validate(); err != nil {
 		return err

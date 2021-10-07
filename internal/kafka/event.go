@@ -18,6 +18,12 @@ type EventKafka struct {
 	svc ConsumerService
 }
 
+func NewEventKafka(svc ConsumerService) EventKafka {
+	return EventKafka{
+		svc: svc,
+	}
+}
+
 func (k EventKafka) Publish(ctx context.Context, message internal.Message) error {
 	log.Println(fmt.Sprintf("producing new event %+v", message))
 	partition := 0

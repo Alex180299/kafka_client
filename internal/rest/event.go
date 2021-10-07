@@ -16,6 +16,12 @@ type EventHandler struct {
 	svc PublisherService
 }
 
+func NewEventHandler(svc PublisherService) EventHandler {
+	return EventHandler{
+		svc: svc,
+	}
+}
+
 func (e EventHandler) Register(echoServer *echo.Echo) {
 	echoServer.POST("/listen", e.listen)
 	echoServer.POST("/publish", e.publish)
